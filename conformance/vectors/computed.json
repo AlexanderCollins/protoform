@@ -1,0 +1,43 @@
+{
+  "name": "computed",
+  "description": "Computed fields and arithmetic: dependency ordering (total declared before subtotal), chained computation, interpolated messages, fail-closed nulls on empty inputs and division by zero, precedence and unary minus, round/min/max builtins.",
+  "schema": {
+    "fields": [
+      { "id": "total", "meta": { "type": "computed", "label": "Total",
+          "expr": "round(value('subtotal') * (1 - value('discount_pct') / 100), 2)", "format": "currency" } },
+      { "id": "unit_price", "meta": { "type": "number", "label": "Unit price", "required": true } },
+      { "id": "quantity", "meta": { "type": "number", "label": "Quantity", "required": true } },
+      { "id": "discount_pct", "meta": { "type": "number", "label": "Discount %" } },
+      { "id": "subtotal", "meta": { "type": "computed", "label": "Subtotal",
+          "expr": "round(value('unit_price') * value('quantity'), 2)" } },
+      { "id": "ratio", "meta": { "type": "computed", "label": "Ratio",
+          "expr": "value('unit_price') / value('discount_pct')" } },
+      { "id": "capped", "meta": { "type": "computed", "label": "Capped",
+          "expr": "min(max(value('quantity'), 1), 10)" } }
+    ],
+    "layout": [
+      { "id": "order", "meta": { "title": "Order" },
+        "children": [ { "id": "unit_price" }, { "id": "quantity" }, { "id": "discount_pct" },
+                      { "id": "subtotal" }, { "id": "total" }, { "id": "ratio" }, { "id": "capped" } ] }
+    ],
+    "rules": [
+      { "id": "big-order", "when": "value('total') > 1000",
+        "affects": [{ "target": "total", "message": "Order total is {total}", "type": "info" }] },
+      { "id": "precedence", "when": "2 + 3 * 4 === 14",
+        "affects": [{ "target": "quantity", "message": "precedence ok", "type": "info" }] },
+      { "id": "unary", "when": "0 - 5 === -5 && -(2 + 3) === -5",
+        "affects": [{ "target": "quantity", "message": "unary ok", "type": "info" }] },
+      { "id": "qty-cap", "when": "value('quantity') > 100",
+        "affects": [{ "target": "quantity", "valid": false, "message": "Max 100, you entered {quantity}" }] }
+    ]
+  },
+  "cases": [
+    { "name": "empty", "values": {} },
+    { "name": "simple", "values": { "unit_price": 25.5, "quantity": 4, "discount_pct": 10 } },
+    { "name": "big-order-interpolated", "values": { "unit_price": 600, "quantity": 2, "discount_pct": 0 } },
+    { "name": "missing-quantity-nulls-chain", "values": { "unit_price": 25.5, "discount_pct": 10 } },
+    { "name": "division-by-zero-null", "values": { "unit_price": 10, "quantity": 1, "discount_pct": 0 } },
+    { "name": "rounding-half-away", "values": { "unit_price": 0.125, "quantity": 1, "discount_pct": 0 } },
+    { "name": "over-cap-interpolated", "values": { "unit_price": 1, "quantity": 250, "discount_pct": 0 } }
+  ]
+}

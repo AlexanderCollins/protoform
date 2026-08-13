@@ -1,0 +1,71 @@
+{
+  "name": "repeaters",
+  "description": "Repeat containers: row-instance derived state, row-scoped rules (validation and per-row visibility), row addressing, min/max completeness, repeat hiding via cascade, aggregates (count/sum/total_pct), computed over aggregates, ancestor completeness.",
+  "schema": {
+    "fields": [
+      { "id": "org_name", "meta": { "type": "text", "label": "Organisation", "required": true } },
+      { "id": "contact_name", "meta": { "type": "text", "label": "Name", "required": true } },
+      { "id": "contact_phone", "meta": { "type": "text", "label": "Phone" } },
+      { "id": "contact_type", "meta": { "type": "select", "label": "Type" } },
+      { "id": "item_desc", "meta": { "type": "text", "label": "Description" } },
+      { "id": "qty", "meta": { "type": "number", "label": "Qty" } },
+      { "id": "pct", "meta": { "type": "number", "label": "Percent" } },
+      { "id": "allocation_total", "meta": { "type": "computed", "label": "Allocated",
+          "expr": "sum('allocations', 'pct')" } }
+    ],
+    "layout": [
+      { "id": "main", "meta": { "title": "Main" },
+        "children": [ { "id": "org_name" }, { "id": "allocation_total" } ] },
+      { "id": "contacts", "meta": { "title": "Contacts", "type": "repeat", "min": 1, "max": 3,
+          "item_label": "Contact {index}" },
+        "children": [ { "id": "contact_name" }, { "id": "contact_phone" }, { "id": "contact_type" } ] },
+      { "id": "wrapper", "meta": { "title": "Order" },
+        "children": [
+          { "id": "order_items", "meta": { "title": "Items", "type": "repeat", "min": 0 },
+            "children": [ { "id": "item_desc" }, { "id": "qty" } ] }
+        ] },
+      { "id": "allocations", "meta": { "title": "Allocations", "type": "repeat", "min": 0 },
+        "children": [ { "id": "pct" } ] }
+    ],
+    "rules": [
+      { "id": "primary-needs-phone", "scope": "contacts",
+        "when": "contact_type === 'primary' && isEmpty(contact_phone)",
+        "affects": [{ "target": "contact_phone", "valid": false, "message": "Primary contact {contact_name} needs a phone" }] },
+      { "id": "hide-phone-for-other", "scope": "contacts",
+        "when": "contact_type === 'other'",
+        "affects": [{ "target": "contact_phone", "visible": false }] },
+      { "id": "hide-contacts-minimal", "when": "env('mode') === 'minimal'",
+        "affects": [{ "target": "contacts", "visible": false }] },
+      { "id": "many-items", "when": "count('order_items') >= 2 && sum('order_items', 'qty') > 10",
+        "affects": [{ "target": "org_name", "message": "Bulk order", "type": "info" }] },
+      { "id": "allocations-must-total", "when": "!total_pct('allocations', 'pct') && count('allocations') > 0",
+        "affects": [{ "target": "allocation_total", "valid": false, "message": "Allocations sum to {allocation_total}, not 100" }] }
+    ]
+  },
+  "cases": [
+    { "name": "no-rows", "values": { "org_name": "Acme" } },
+    { "name": "one-valid-contact", "values": { "org_name": "Acme",
+        "contacts": [ { "contact_name": "Sam", "contact_phone": "0400", "contact_type": "primary" } ] } },
+    { "name": "primary-missing-phone", "values": { "org_name": "Acme",
+        "contacts": [ { "contact_name": "Sam", "contact_type": "primary" },
+                      { "contact_name": "Ada", "contact_type": "secondary" } ] } },
+    { "name": "other-type-hides-phone", "values": { "org_name": "Acme",
+        "contacts": [ { "contact_name": "Sam", "contact_type": "other" } ] } },
+    { "name": "too-many-rows", "values": { "org_name": "Acme",
+        "contacts": [ { "contact_name": "A" }, { "contact_name": "B" },
+                      { "contact_name": "C" }, { "contact_name": "D" } ] } },
+    { "name": "missing-required-in-row", "values": { "org_name": "Acme",
+        "contacts": [ { "contact_phone": "0400" } ] } },
+    { "name": "hidden-repeat-is-complete", "values": { "org_name": "Acme", "contacts": [] },
+      "env": { "mode": "minimal" } },
+    { "name": "aggregates-fire", "values": { "org_name": "Acme",
+        "contacts": [ { "contact_name": "Sam" } ],
+        "order_items": [ { "item_desc": "widget", "qty": 8 }, { "item_desc": "bolt", "qty": 5 } ] } },
+    { "name": "allocations-ok", "values": { "org_name": "Acme",
+        "contacts": [ { "contact_name": "Sam" } ],
+        "allocations": [ { "pct": 60 }, { "pct": 40 } ] } },
+    { "name": "allocations-short", "values": { "org_name": "Acme",
+        "contacts": [ { "contact_name": "Sam" } ],
+        "allocations": [ { "pct": 50 }, { "pct": 30 } ] } }
+  ]
+}

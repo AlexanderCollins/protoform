@@ -1,0 +1,356 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:protoform:schema:1.4",
+  "title": "ProtoForm schema",
+  "description": "Machine-checkable definition of a valid ProtoForm form document (spec v1.4). Validate AI-generated or hand-written schemas against this before handing them to an engine.",
+  "type": "object",
+  "required": [
+    "fields",
+    "layout",
+    "rules"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "fields": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/field"
+      }
+    },
+    "layout": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/container"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/rule"
+      }
+    }
+  },
+  "definitions": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "option": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {}
+      },
+      "additionalProperties": false
+    },
+    "field": {
+      "type": "object",
+      "required": [
+        "id",
+        "meta"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/identifier"
+        },
+        "meta": {
+          "$ref": "#/definitions/fieldMeta"
+        }
+      }
+    },
+    "fieldMeta": {
+      "type": "object",
+      "required": [
+        "type",
+        "label"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "expr": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "placeholder": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/option"
+              }
+            },
+            "rows": {
+              "type": "number"
+            },
+            "accept": {
+              "type": "string"
+            },
+            "multiple": {
+              "type": "boolean"
+            },
+            "maxFiles": {
+              "type": "number"
+            },
+            "maxSize": {
+              "type": "number"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "options_url": {
+              "type": "string",
+              "description": "URL the client fetches options from; a {q} placeholder makes the control search-driven. Rendering contract only: engines never fetch."
+            },
+            "searchable": {
+              "type": "boolean",
+              "description": "Multiselect: show a client-side filter box over the loaded options."
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "fieldRef": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/identifier"
+        },
+        "meta": {
+          "$ref": "#/definitions/fieldMeta"
+        }
+      },
+      "additionalProperties": false,
+      "not": {
+        "required": [
+          "children"
+        ]
+      }
+    },
+    "container": {
+      "type": "object",
+      "required": [
+        "id",
+        "children",
+        "meta"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/identifier"
+        },
+        "meta": {
+          "type": "object",
+          "required": [
+            "title"
+          ],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "sub_title": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "min": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "item_label": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/container"
+              },
+              {
+                "$ref": "#/definitions/fieldRef"
+              }
+            ]
+          }
+        },
+        "layout": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/identifier"
+            }
+          }
+        }
+      }
+    },
+    "expression": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/definitions/expressionObject"
+        }
+      ]
+    },
+    "expressionObject": {
+      "type": "object",
+      "required": [
+        "expressions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "and",
+            "or"
+          ]
+        },
+        "expressions": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/expressionObject"
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/definitions/expressionObject"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "required": [
+        "id",
+        "when",
+        "affects"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/identifier"
+        },
+        "when": {
+          "$ref": "#/definitions/expression"
+        },
+        "affects": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/affect"
+          }
+        },
+        "required_parent": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/identifier"
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/identifier"
+        }
+      }
+    },
+    "affect": {
+      "type": "object",
+      "required": [
+        "target"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "$ref": "#/definitions/identifier"
+        },
+        "visible": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "valid": {
+          "type": "boolean"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "read_only": {
+          "type": "boolean"
+        },
+        "blocking": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "error",
+            "info",
+            "warning"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/option"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,381 @@
+{
+ "name": "kitchen-sink",
+ "description": "Broad sweep: bare identifiers, isEmpty, registered custom functions, regex quantifiers, date-string ordering, rule chaining, blocking, container cascade, env-driven read_only.",
+ "schema": {
+  "fields": [
+   {
+    "id": "first_name",
+    "meta": {
+     "type": "text",
+     "label": "First Name",
+     "required": true
+    }
+   },
+   {
+    "id": "age",
+    "meta": {
+     "type": "number",
+     "label": "Age"
+    }
+   },
+   {
+    "id": "country",
+    "meta": {
+     "type": "select",
+     "label": "Country"
+    }
+   },
+   {
+    "id": "reg_code",
+    "meta": {
+     "type": "text",
+     "label": "Registration code"
+    }
+   },
+   {
+    "id": "code",
+    "meta": {
+     "type": "text",
+     "label": "Code"
+    }
+   },
+   {
+    "id": "start_date",
+    "meta": {
+     "type": "date",
+     "label": "Start"
+    }
+   },
+   {
+    "id": "end_date",
+    "meta": {
+     "type": "date",
+     "label": "End"
+    }
+   },
+   {
+    "id": "tags",
+    "meta": {
+     "type": "select",
+     "label": "Tags"
+    }
+   },
+   {
+    "id": "notes",
+    "meta": {
+     "type": "textarea",
+     "label": "Internal Notes"
+    }
+   },
+   {
+    "id": "region",
+    "meta": {
+     "type": "select",
+     "label": "Region",
+     "properties": {
+      "options": [
+       {
+        "label": "Pick a country first",
+        "value": ""
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "layout": [
+   {
+    "id": "main",
+    "meta": {
+     "title": "Main"
+    },
+    "children": [
+     {
+      "id": "first_name"
+     },
+     {
+      "id": "age"
+     },
+     {
+      "id": "country"
+     },
+     {
+      "id": "code"
+     },
+     {
+      "id": "start_date"
+     },
+     {
+      "id": "end_date"
+     },
+     {
+      "id": "tags"
+     },
+     {
+      "id": "notes"
+     },
+     {
+      "id": "region"
+     }
+    ]
+   },
+   {
+    "id": "company_step",
+    "meta": {
+     "title": "Company"
+    },
+    "children": [
+     {
+      "id": "reg_code"
+     }
+    ]
+   }
+  ],
+  "rules": [
+   {
+    "id": "name-required",
+    "when": "isEmpty(first_name)",
+    "affects": [
+     {
+      "target": "first_name",
+      "valid": false,
+      "message": "Name required"
+     }
+    ]
+   },
+   {
+    "id": "adult-au",
+    "when": "age >= 18 && value('country') === 'AU'",
+    "affects": [
+     {
+      "target": "reg_code",
+      "required": true
+     }
+    ]
+   },
+   {
+    "id": "hide-company",
+    "when": "value('country') !== 'AU'",
+    "affects": [
+     {
+      "target": "company_step",
+      "visible": false
+     }
+    ]
+   },
+   {
+    "id": "code-valid",
+    "when": "checksumInvalid",
+    "required_parent": [
+     "adult-au"
+    ],
+    "affects": [
+     {
+      "target": "reg_code",
+      "valid": false,
+      "message": "Invalid registration code"
+     }
+    ]
+   },
+   {
+    "id": "code-format",
+    "when": "matches('^[A-Z]{2,4}$')",
+    "affects": [
+     {
+      "target": "code",
+      "valid": false,
+      "message": "2-4 capitals"
+     }
+    ]
+   },
+   {
+    "id": "date-order",
+    "when": "value('end_date') < value('start_date') && !isEmpty(end_date)",
+    "affects": [
+     {
+      "target": "end_date",
+      "valid": false,
+      "message": "End before start",
+      "blocking": true
+     }
+    ]
+   },
+   {
+    "id": "vip",
+    "when": "(value('tags') || []).includes('vip')",
+    "affects": [
+     {
+      "target": "code",
+      "required": true
+     }
+    ]
+   },
+   {
+    "id": "agent-view",
+    "when": "env('actor_role') === 'agent'",
+    "affects": [
+     {
+      "target": "notes",
+      "visible": false
+     },
+     {
+      "target": "first_name",
+      "read_only": true
+     }
+    ]
+   },
+   {
+    "id": "au-regions",
+    "when": "value('country') === 'AU'",
+    "affects": [
+     {
+      "target": "region",
+      "options": [
+       {
+        "label": "New South Wales",
+        "value": "nsw"
+       },
+       {
+        "label": "Victoria",
+        "value": "vic"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "nz-regions",
+    "when": "value('country') === 'NZ'",
+    "affects": [
+     {
+      "target": "region",
+      "options": [
+       {
+        "label": "North Island",
+        "value": "north"
+       },
+       {
+        "label": "South Island",
+        "value": "south"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "young-warning",
+    "when": "age >= 16 && age < 18",
+    "affects": [
+     {
+      "target": "age",
+      "message": "A guardian must co-sign for {age} year olds",
+      "type": "warning"
+     }
+    ]
+   }
+  ]
+ },
+ "cases": [
+  {
+   "name": "empty",
+   "values": {}
+  },
+  {
+   "name": "happy-path-au",
+   "values": {
+    "first_name": "Alex",
+    "age": 25,
+    "country": "AU",
+    "reg_code": "7000",
+    "code": "ABC",
+    "tags": [
+     "vip"
+    ]
+   }
+  },
+  {
+   "name": "bad-code",
+   "values": {
+    "first_name": "Alex",
+    "age": 25,
+    "country": "AU",
+    "reg_code": "1234",
+    "code": "toolongcode"
+   }
+  },
+  {
+   "name": "minor",
+   "values": {
+    "first_name": "",
+    "age": 15,
+    "country": "AU",
+    "code": "AB"
+   }
+  },
+  {
+   "name": "dates-reversed-nz",
+   "values": {
+    "first_name": "Alex",
+    "age": 25,
+    "country": "NZ",
+    "start_date": "2026-03-01",
+    "end_date": "2026-01-01"
+   }
+  },
+  {
+   "name": "spaced-code",
+   "values": {
+    "first_name": "Alex",
+    "age": 25,
+    "country": "AU",
+    "reg_code": "70 00",
+    "start_date": "2026-01-01",
+    "end_date": "2026-03-01",
+    "tags": []
+   }
+  },
+  {
+   "name": "vip-tags",
+   "values": {
+    "first_name": "Alex",
+    "code": "ABCDE",
+    "tags": [
+     "vip",
+     "au"
+    ]
+   }
+  },
+  {
+   "name": "agent-party-view",
+   "values": {
+    "first_name": "Alex",
+    "age": 30,
+    "country": "AU",
+    "reg_code": "7000"
+   },
+   "env": {
+    "actor_role": "agent"
+   }
+  },
+  {
+   "name": "owner-party-view",
+   "values": {
+    "first_name": "Alex",
+    "age": 30,
+    "country": "AU",
+    "reg_code": "7000"
+   },
+   "env": {
+    "actor_role": "owner"
+   }
+  },
+  {
+   "name": "options-and-warning",
+   "values": {
+    "first_name": "Alex",
+    "age": 17,
+    "country": "NZ"
+   }
+  }
+ ]
+}

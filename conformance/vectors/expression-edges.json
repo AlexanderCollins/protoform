@@ -1,0 +1,53 @@
+{
+  "name": "expression-edges",
+  "description": "Semantics edges that historically diverge between implementations: null/undefined identity, lexicographic string ordering, numeric coercion, regex escapes, array literals, compound expressions starting with template names, compositional and/or objects.",
+  "schema": {
+    "fields": [
+      { "id": "a", "meta": { "type": "text", "label": "A" } },
+      { "id": "b", "meta": { "type": "text", "label": "B" } },
+      { "id": "n", "meta": { "type": "number", "label": "N" } },
+      { "id": "email", "meta": { "type": "email", "label": "Email" } },
+      { "id": "request_type", "meta": { "type": "select", "label": "Purpose" } },
+      { "id": "other_purpose", "meta": { "type": "text", "label": "Other" } },
+      { "id": "status", "meta": { "type": "select", "label": "Status" } },
+      { "id": "role", "meta": { "type": "select", "label": "Role" } },
+      { "id": "override", "meta": { "type": "checkbox", "label": "Override" } }
+    ],
+    "layout": [],
+    "rules": [
+      { "id": "missing-is-null", "when": "value('a') === null",
+        "affects": [{ "target": "a", "message": "a missing", "type": "info" }] },
+      { "id": "undefined-alias", "when": "value('a') === undefined",
+        "affects": [{ "target": "a", "message": "a undefined", "type": "info" }] },
+      { "id": "lex-order", "when": "value('a') >= value('b') && !isEmpty(a) && !isEmpty(b)",
+        "affects": [{ "target": "b", "message": "a gte b", "type": "info" }] },
+      { "id": "num-coerce-guard", "when": "n < 5",
+        "affects": [{ "target": "n", "message": "n lt 5", "type": "info" }] },
+      { "id": "email-format", "when": "!isEmpty(email) && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(value('email'))",
+        "affects": [{ "target": "email", "valid": false, "message": "bad email" }] },
+      { "id": "compound-template-name", "when": "isEmpty(other_purpose) && value('request_type') === 'other'",
+        "affects": [{ "target": "other_purpose", "valid": false, "message": "specify" }] },
+      { "id": "array-literal", "when": "(value('status') || 'none').includes('appr')",
+        "affects": [{ "target": "status", "message": "approvedish", "type": "info" }] },
+      { "id": "compositional", "when": { "type": "or", "expressions": [
+          "value('status') === 'approved'",
+          { "type": "and", "expressions": ["value('role') === 'manager'", "override === true"] }
+        ] },
+        "affects": [{ "target": "status", "message": "composite pass", "type": "info" }] }
+    ]
+  },
+  "cases": [
+    { "name": "all-missing", "values": {} },
+    { "name": "iso-dates-lex", "values": { "a": "2026-02-01", "b": "2026-01-01" } },
+    { "name": "iso-dates-reverse", "values": { "a": "2026-01-01", "b": "2026-02-01" } },
+    { "name": "numeric-string-n", "values": { "n": "3" } },
+    { "name": "non-numeric-n", "values": { "n": "abc" } },
+    { "name": "good-email", "values": { "email": "alex@example.com" } },
+    { "name": "bad-email", "values": { "email": "not-an-email" } },
+    { "name": "compound-fires", "values": { "request_type": "other" } },
+    { "name": "compound-quiet", "values": { "request_type": "standard", "other_purpose": "" } },
+    { "name": "composite-or-left", "values": { "status": "approved" } },
+    { "name": "composite-and-right", "values": { "role": "manager", "override": true } },
+    { "name": "composite-neither", "values": { "role": "manager", "override": false } }
+  ]
+}

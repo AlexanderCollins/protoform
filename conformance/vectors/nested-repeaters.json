@@ -1,0 +1,67 @@
+{
+  "name": "nested-repeaters",
+  "description": "Repeats inside repeats: nested addressing, per-parent-row min/max, child-scoped rules with lexical value chains, parent-scoped aggregates over child arrays, cascade hiding the whole tree, ancestor completeness.",
+  "schema": {
+    "fields": [
+      { "id": "team_name", "meta": { "type": "text", "label": "Team name", "required": true } },
+      { "id": "member_name", "meta": { "type": "text", "label": "Member name", "required": true } },
+      { "id": "member_role", "meta": { "type": "select", "label": "Role" } },
+      { "id": "qual_name", "meta": { "type": "text", "label": "Qualification", "required": true } },
+      { "id": "qual_year", "meta": { "type": "number", "label": "Year" } }
+    ],
+    "layout": [
+      { "id": "teams", "meta": { "title": "Teams", "type": "repeat", "min": 1, "item_label": "Team {index}" },
+        "children": [
+          { "id": "team_name" },
+          { "id": "members", "meta": { "title": "Members", "type": "repeat", "min": 1, "max": 3 },
+            "children": [
+              { "id": "member_name" },
+              { "id": "member_role" },
+              { "id": "qualifications", "meta": { "title": "Qualifications", "type": "repeat", "min": 0, "max": 2 },
+                "children": [ { "id": "qual_name" }, { "id": "qual_year" } ] }
+            ] }
+        ] }
+    ],
+    "rules": [
+      { "id": "lead-needs-qual", "scope": "members",
+        "when": "member_role === 'lead' && count('qualifications') === 0",
+        "affects": [{ "target": "member_name", "valid": false,
+                      "message": "Lead {member_name} of {team_name} needs a qualification" }] },
+      { "id": "qual-year-required", "scope": "qualifications",
+        "when": "!isEmpty(qual_name) && isEmpty(qual_year)",
+        "affects": [{ "target": "qual_year", "valid": false, "message": "Year required for {qual_name}" }] },
+      { "id": "hide-teams", "when": "env('mode') === 'solo'",
+        "affects": [{ "target": "teams", "visible": false }] }
+    ]
+  },
+  "cases": [
+    { "name": "empty", "values": {} },
+    { "name": "happy-nested", "values": { "teams": [
+        { "team_name": "Alpha", "members": [
+          { "member_name": "Sam", "member_role": "lead",
+            "qualifications": [ { "qual_name": "First aid", "qual_year": 2024 } ] } ] } ] } },
+    { "name": "lead-without-qualification", "values": { "teams": [
+        { "team_name": "Alpha", "members": [
+          { "member_name": "Sam", "member_role": "lead", "qualifications": [] } ] } ] } },
+    { "name": "nested-field-error", "values": { "teams": [
+        { "team_name": "Alpha", "members": [
+          { "member_name": "Sam", "member_role": "crew",
+            "qualifications": [ { "qual_name": "Rigging" } ] } ] } ] } },
+    { "name": "per-parent-min-violated", "values": { "teams": [
+        { "team_name": "Alpha", "members": [ { "member_name": "Sam" } ] },
+        { "team_name": "Beta", "members": [] } ] } },
+    { "name": "child-max-violated", "values": { "teams": [
+        { "team_name": "Alpha", "members": [
+          { "member_name": "Sam", "qualifications": [
+            { "qual_name": "A", "qual_year": 2020 }, { "qual_name": "B", "qual_year": 2021 },
+            { "qual_name": "C", "qual_year": 2022 } ] } ] } ] } },
+    { "name": "cascade-hides-tree", "values": { "teams": [
+        { "team_name": "Alpha", "members": [ { "member_name": "Sam" } ] } ] },
+      "env": { "mode": "solo" } },
+    { "name": "second-team-second-member", "values": { "teams": [
+        { "team_name": "Alpha", "members": [ { "member_name": "Sam", "member_role": "crew" } ] },
+        { "team_name": "Beta", "members": [
+          { "member_name": "Ada", "member_role": "crew" },
+          { "member_name": "Kim", "member_role": "lead", "qualifications": [] } ] } ] } }
+  ]
+}

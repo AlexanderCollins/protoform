@@ -1,0 +1,351 @@
+{
+ "name": "templates",
+ "description": "All 15 built-in templates \u2014 resolution strings and evaluation must be identical in every engine.",
+ "schema": {
+  "fields": [
+   {
+    "id": "f_min",
+    "meta": {
+     "type": "number",
+     "label": "Min"
+    }
+   },
+   {
+    "id": "f_max",
+    "meta": {
+     "type": "number",
+     "label": "Max"
+    }
+   },
+   {
+    "id": "f_between",
+    "meta": {
+     "type": "number",
+     "label": "Between"
+    }
+   },
+   {
+    "id": "f_eq",
+    "meta": {
+     "type": "text",
+     "label": "Eq"
+    }
+   },
+   {
+    "id": "f_neq",
+    "meta": {
+     "type": "text",
+     "label": "Neq"
+    }
+   },
+   {
+    "id": "f_empty",
+    "meta": {
+     "type": "select",
+     "label": "Empty"
+    }
+   },
+   {
+    "id": "f_notempty",
+    "meta": {
+     "type": "text",
+     "label": "NotEmpty"
+    }
+   },
+   {
+    "id": "pw",
+    "meta": {
+     "type": "password",
+     "label": "Password"
+    }
+   },
+   {
+    "id": "pw2",
+    "meta": {
+     "type": "password",
+     "label": "Confirm"
+    }
+   },
+   {
+    "id": "f_gt",
+    "meta": {
+     "type": "number",
+     "label": "Gt"
+    }
+   },
+   {
+    "id": "f_lt",
+    "meta": {
+     "type": "number",
+     "label": "Lt"
+    }
+   },
+   {
+    "id": "f_matches",
+    "meta": {
+     "type": "text",
+     "label": "Matches"
+    }
+   },
+   {
+    "id": "f_minlen",
+    "meta": {
+     "type": "text",
+     "label": "MinLen"
+    }
+   },
+   {
+    "id": "f_maxlen",
+    "meta": {
+     "type": "text",
+     "label": "MaxLen"
+    }
+   },
+   {
+    "id": "f_inc",
+    "meta": {
+     "type": "select",
+     "label": "Includes"
+    }
+   },
+   {
+    "id": "f_ninc",
+    "meta": {
+     "type": "select",
+     "label": "NotIncludes"
+    }
+   }
+  ],
+  "layout": [],
+  "rules": [
+   {
+    "id": "r_min",
+    "when": "minValue(18)",
+    "affects": [
+     {
+      "target": "f_min",
+      "valid": false,
+      "message": "min"
+     }
+    ]
+   },
+   {
+    "id": "r_max",
+    "when": "maxValue(100)",
+    "affects": [
+     {
+      "target": "f_max",
+      "valid": false,
+      "message": "max"
+     }
+    ]
+   },
+   {
+    "id": "r_between",
+    "when": "between(0, 150)",
+    "affects": [
+     {
+      "target": "f_between",
+      "valid": false,
+      "message": "between"
+     }
+    ]
+   },
+   {
+    "id": "r_eq",
+    "when": "fieldEquals('AU')",
+    "affects": [
+     {
+      "target": "f_eq",
+      "valid": false,
+      "message": "eq"
+     }
+    ]
+   },
+   {
+    "id": "r_neq",
+    "when": "fieldNotEquals('AU')",
+    "affects": [
+     {
+      "target": "f_neq",
+      "valid": false,
+      "message": "neq"
+     }
+    ]
+   },
+   {
+    "id": "r_empty",
+    "when": "isEmpty",
+    "affects": [
+     {
+      "target": "f_empty",
+      "valid": false,
+      "message": "empty"
+     }
+    ]
+   },
+   {
+    "id": "r_notempty",
+    "when": "isNotEmpty",
+    "affects": [
+     {
+      "target": "f_notempty",
+      "valid": false,
+      "message": "notempty"
+     }
+    ]
+   },
+   {
+    "id": "r_fieldseq",
+    "when": "fieldsEqual('pw', 'pw2')",
+    "affects": [
+     {
+      "target": "pw2",
+      "valid": false,
+      "message": "same"
+     }
+    ]
+   },
+   {
+    "id": "r_fgt",
+    "when": "fieldGreaterThan('f_gt', 'f_lt')",
+    "affects": [
+     {
+      "target": "f_gt",
+      "valid": false,
+      "message": "fgt"
+     }
+    ]
+   },
+   {
+    "id": "r_flt",
+    "when": "fieldLessThan('f_lt', 'f_gt')",
+    "affects": [
+     {
+      "target": "f_lt",
+      "valid": false,
+      "message": "flt"
+     }
+    ]
+   },
+   {
+    "id": "r_matches",
+    "when": "matches('^[A-Z]{2,3}\\d{2}$')",
+    "affects": [
+     {
+      "target": "f_matches",
+      "valid": false,
+      "message": "matches"
+     }
+    ]
+   },
+   {
+    "id": "r_minlen",
+    "when": "minLength(2)",
+    "affects": [
+     {
+      "target": "f_minlen",
+      "valid": false,
+      "message": "minlen"
+     }
+    ]
+   },
+   {
+    "id": "r_maxlen",
+    "when": "maxLength(5)",
+    "affects": [
+     {
+      "target": "f_maxlen",
+      "valid": false,
+      "message": "maxlen"
+     }
+    ]
+   },
+   {
+    "id": "r_inc",
+    "when": "includes('vip')",
+    "affects": [
+     {
+      "target": "f_inc",
+      "valid": false,
+      "message": "inc"
+     }
+    ]
+   },
+   {
+    "id": "r_ninc",
+    "when": "notIncludes('vip')",
+    "affects": [
+     {
+      "target": "f_ninc",
+      "valid": false,
+      "message": "ninc"
+     }
+    ]
+   }
+  ]
+ },
+ "cases": [
+  {
+   "name": "all-quiet",
+   "values": {
+    "f_min": 20,
+    "f_max": 50,
+    "f_between": 75,
+    "f_eq": "NZ",
+    "f_neq": "AU",
+    "f_empty": "x",
+    "f_notempty": "",
+    "pw": "a",
+    "pw2": "b",
+    "f_gt": 1,
+    "f_lt": 2,
+    "f_matches": "ab12",
+    "f_minlen": "ab",
+    "f_maxlen": "abc",
+    "f_inc": [
+     "basic"
+    ],
+    "f_ninc": [
+     "vip"
+    ]
+   }
+  },
+  {
+   "name": "all-firing",
+   "values": {
+    "f_min": 17,
+    "f_max": 101,
+    "f_between": 200,
+    "f_eq": "AU",
+    "f_neq": "NZ",
+    "f_empty": "",
+    "f_notempty": "x",
+    "pw": "same",
+    "pw2": "same",
+    "f_gt": 9,
+    "f_lt": 1,
+    "f_matches": "AB12",
+    "f_minlen": "a",
+    "f_maxlen": "abcdef",
+    "f_inc": [
+     "vip"
+    ],
+    "f_ninc": [
+     "basic"
+    ]
+   }
+  },
+  {
+   "name": "empty-array-is-empty",
+   "values": {
+    "f_empty": [],
+    "f_notempty": []
+   }
+  },
+  {
+   "name": "null-safety",
+   "values": {}
+  }
+ ]
+}

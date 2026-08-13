@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "protoform-engine"
+version = "0.9.0"
+description = "Server-side ProtoForm rule engine — pure Python core, optional Django/DRF integration"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "IO CORP PTY LTD (Alexander Collins)"}]
+requires-python = ">=3.10"
+# The engine (protoform.engine / expressions / templates / mapping) is pure
+# Python with zero dependencies — usable from FastAPI, Flask, workers, etc.
+# Django and DRF are only needed for the optional integration layers.
+dependencies = []
+
+[project.optional-dependencies]
+django = ["django>=4.2"]
+drf = ["django>=4.2", "djangorestframework>=3.14"]
+dev = ["pytest", "pytest-django", "django>=4.2", "djangorestframework>=3.14"]
+
+[tool.setuptools.packages.find]
+include = ["protoform*"]

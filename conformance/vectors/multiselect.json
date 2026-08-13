@@ -1,0 +1,36 @@
+{
+  "name": "multiselect",
+  "description": "Multiselect array values: required on empty array, count() over the selection, includes() driving visibility and required, sum() skipping scalar rows identically in both engines, and an options_url select validating value-based (engines never fetch).",
+  "schema": {
+    "fields": [
+      { "id": "interests", "meta": { "type": "multiselect", "label": "Interests", "required": true,
+          "properties": { "searchable": true, "options": [
+            { "label": "Sports", "value": "sports" }, { "label": "Music", "value": "music" },
+            { "label": "Art", "value": "art" }, { "label": "Other", "value": "other" } ] } } },
+      { "id": "other_detail", "meta": { "type": "text", "label": "Tell us more" } },
+      { "id": "city", "meta": { "type": "select", "label": "City", "required": true,
+          "properties": { "options_url": "https://api.example.test/cities?q={q}" } } }
+    ],
+    "layout": [
+      { "id": "main", "meta": { "title": "Preferences" },
+        "children": [ { "id": "interests" }, { "id": "other_detail" }, { "id": "city" } ] }
+    ],
+    "rules": [
+      { "id": "min-two", "when": "count('interests') === 1",
+        "affects": [ { "target": "interests", "valid": false, "message": "Select at least two." } ] },
+      { "id": "other-visibility", "when": "!value('interests').includes('other')",
+        "affects": [ { "target": "other_detail", "visible": false } ] },
+      { "id": "other-required", "when": "value('interests').includes('other')",
+        "affects": [ { "target": "other_detail", "required": true } ] },
+      { "id": "sum-over-scalars", "when": "sum('interests', 'qty') === 0",
+        "affects": [ { "target": "interests", "message": "sum-parity-marker", "type": "info" } ] }
+    ]
+  },
+  "cases": [
+    { "name": "empty", "values": {} },
+    { "name": "empty-array", "values": { "interests": [] } },
+    { "name": "single-selection", "values": { "interests": ["sports"], "city": "mel" } },
+    { "name": "with-other-missing-detail", "values": { "interests": ["music", "other"], "city": "mel" } },
+    { "name": "complete", "values": { "interests": ["music", "other"], "other_detail": "poetry", "city": "mel" } }
+  ]
+}

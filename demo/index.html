@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ProtoForm Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      body { margin: 0; padding: 0; background: var(--pf-bg); color: var(--pf-text); transition: background 200ms, color 200ms; }
+      :root {
+        --pf-bg: #ffffff;
+        --pf-bg-card: #ffffff;
+        --pf-bg-control: #f8fafc;
+        --pf-bg-tab: #f8fafc;
+        --pf-bg-tab-active: #ffffff;
+        --pf-border: #e2e8f0;
+        --pf-border-input: #cbd5e1;
+        --pf-text: #1e293b;
+        --pf-text-secondary: #64748b;
+        --pf-text-muted: #94a3b8;
+        --pf-shadow-card: 0 1px 3px rgba(0,0,0,0.08);
+        --pf-btn-bg: #ffffff;
+        --pf-btn-text: #374151;
+        --pf-btn-border: #cbd5e1;
+        --pf-nav-btn-bg: #ffffff;
+        --pf-nav-btn-border: #d1d5db;
+        --pf-nav-btn-text: #374151;
+      }
+      html.dark {
+        --pf-bg: #0f172a;
+        --pf-bg-card: #1e293b;
+        --pf-bg-control: #1e293b;
+        --pf-bg-tab: #1e293b;
+        --pf-bg-tab-active: #334155;
+        --pf-border: #334155;
+        --pf-border-input: #475569;
+        --pf-text: #f1f5f9;
+        --pf-text-secondary: #94a3b8;
+        --pf-text-muted: #64748b;
+        --pf-shadow-card: 0 1px 3px rgba(0,0,0,0.3);
+        --pf-btn-bg: #1e293b;
+        --pf-btn-text: #e2e8f0;
+        --pf-btn-border: #475569;
+        --pf-nav-btn-bg: #1e293b;
+        --pf-nav-btn-border: #475569;
+        --pf-nav-btn-text: #e2e8f0;
+      }
+      @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+      /* Strip bottom margin from progress components inside the sub-nav */
+      .subnav-progress > div { margin-bottom: 0 !important; }
+      .hl-key { color: #89b4fa; }
+      .hl-string { color: #a6e3a1; }
+      .hl-number { color: #fab387; }
+      .hl-bool { color: #cba6f7; }
+      .hl-keyword { color: #cba6f7; }
+      .hl-comment { color: #6c7086; font-style: italic; }
+      .hl-tag { color: #89b4fa; }
+      .hl-attr { color: #f9e2af; }
+    </style>
+  </head>
+  <body>
+    <script>if(window.matchMedia("(prefers-color-scheme:dark)").matches)document.documentElement.classList.add("dark")</script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
