@@ -1,10 +1,18 @@
 # ProtoForm
 
+[![CI](https://github.com/AlexanderCollins/protoform/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexanderCollins/protoform/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/AlexanderCollins/protoform)](https://github.com/AlexanderCollins/protoform/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 ProtoForm describes a form as a JSON document. One schema renders in the
 browser and is re-validated on the server by a second engine with the
 same behavior. A conformance suite in CI verifies that the two engines
 agree. The client engine is TypeScript with React bindings and the server
 engine is dependency-free Python. MIT licensed.
+
+**[Try the live demo](https://alexandercollins.github.io/protoform/)**: a
+schema playground with an editable JSON document, switchable UI adapters,
+and a multi-step wizard, running entirely in your browser.
 
 ```json
 {
@@ -49,6 +57,11 @@ import { daisyuiAdapter } from "@protoform/adapter-daisyui";
 
 <ProtoForm schema={schema} adapter={daisyuiAdapter} onSubmit={handleSubmit} />
 ```
+
+daisyUI is the default look used across the docs and demo. Swapping the
+adapter is one import: `daisyui`, `tailwind`, and `unstyled` are
+maintained by the core team, and `shadcn`, `material`, `antd`, and
+`chakra` are community-maintained.
 
 Enforce on the server, same schema:
 

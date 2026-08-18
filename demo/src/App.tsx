@@ -54,7 +54,7 @@ export function App() {
   const darkMode = useSystemDarkMode();
 
   // --- Persisted state ---
-  const [adapterName, setAdapterName] = useLocalStorage("adapterName", "unstyled");
+  const [adapterName, setAdapterName] = useLocalStorage("adapterName", "daisyui");
   const [demoType, setDemoType] = useLocalStorage<"single" | "multi">("demoType", "single");
   const [showCustomReferral, setShowCustomReferral] = useLocalStorage("showCustomReferral", true);
   const [schemaJsonSingle, setSchemaJsonSingle] = useLocalStorage("schemaJson_single", DEFAULT_SCHEMA_JSON.single);
