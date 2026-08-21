@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/AlexanderCollins/protoform/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexanderCollins/protoform/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/AlexanderCollins/protoform)](https://github.com/AlexanderCollins/protoform/releases)
+[![PyPI](https://img.shields.io/pypi/v/protoform-engine)](https://pypi.org/project/protoform-engine/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ProtoForm describes a form as a JSON document. One schema renders in the
