@@ -1,0 +1,10 @@
+/* Tailwind utilities + daisyUI components, WITHOUT preflight — the demo
+ * chrome and the other adapters style themselves, and a global reset
+ * would disturb them. daisyUI classes come from the adapter's dist. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
+@source "../../packages/adapter-daisyui/dist";
